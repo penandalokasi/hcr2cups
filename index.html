@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1220" />
+  <title>HCR2 Cups Chest Tracker</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#121c31;
+      --card2:#0f1729;
+      --text:#e8eefc;
+      --muted:#a7b3d1;
+      --border:rgba(255,255,255,.10);
+      --shadow: 0 8px 30px rgba(0,0,0,.35);
+      --radius:18px;
+
+      --common:#b8742a;
+      --rare:#f6c84c;
+      --uncommon:#c9d2df;
+      --epic:#b384ff;
+      --champion:#ffd24d;
+
+      --milestoneGlow: 0 0 0 2px rgba(246,200,76,.45), 0 10px 25px rgba(246,200,76,.08);
+      --nextGlow: 0 0 0 3px rgba(103, 232, 249, .55), 0 12px 35px rgba(103, 232, 249, .10);
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 600px at 30% -10%, rgba(179,132,255,.18), transparent 55%),
+                  radial-gradient(1000px 500px at 80% 0%, rgba(246,200,76,.12), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      line-height:1.35;
+    }
+
+    a{color:inherit;}
+    .wrap{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 16px 16px calc(92px + env(safe-area-inset-bottom));
+    }
+
+    header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-top: 4px;
+      margin-bottom: 14px;
+    }
+    .title h1{
+      font-size: 20px;
+      margin:0;
+      letter-spacing:.2px;
+    }
+    .title p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size: 13px;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      font-size: 12px;
+      color: var(--muted);
+      user-select:none;
+      white-space:nowrap;
+    }
+    .pill strong{color:var(--text); font-weight:650;}
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .stat{
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px;
+      padding: 10px 10px 9px;
+    }
+    .stat .k{font-size: 11px; color: var(--muted); margin-bottom: 6px;}
+    .stat .v{font-size: 15px; font-weight: 750;}
+    .stat .s{font-size: 11px; color: var(--muted); margin-top: 4px;}
+
+    .nextRow{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+    }
+    .nextInfo{
+      flex:1;
+      min-width:0;
+    }
+    .nextInfo .big{
+      font-size: 16px;
+      font-weight: 800;
+      margin:0;
+    }
+    .nextInfo .small{
+      margin:4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .progressWrap{
+      margin-top: 12px;
+    }
+    .bar{
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .bar > div{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(103,232,249,.9), rgba(246,200,76,.85), rgba(179,132,255,.85));
+      border-radius:999px;
+      transition: width 220ms ease;
+    }
+    .barLabel{
+      display:flex;
+      justify-content:space-between;
+      margin-top:8px;
+      font-size: 12px;
+      color: var(--muted);
+      gap: 8px;
+    }
+
+    .milestones{
+      margin-top: 12px;
+      display:flex;
+      flex-direction:column;
+      gap: 8px;
+    }
+    .milestoneItem{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .milestoneItem .txt{
+      flex:1;
+      min-width:0;
+    }
+    .milestoneItem .txt .t{
+      font-weight: 750;
+      font-size: 13px;
+      margin:0;
+    }
+    .milestoneItem .txt .d{
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .seqHeader{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap: 12px;
+      margin-top: 14px;
+      margin-bottom: 10px;
+    }
+    .seqHeader h2{
+      font-size: 14px;
+      margin:0;
+      letter-spacing:.2px;
+    }
+    .seqHeader .hint{
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .sequence{
+      display:grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      gap: 8px;
+      padding: 10px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 16px;
+      overflow:hidden;
+    }
+
+    .cell{
+      position:relative;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      padding: 8px 6px 7px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap: 6px;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      cursor:pointer;
+      transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease, border-color 120ms ease;
+    }
+    .cell:active{transform: scale(.98);}
+    .cell.done{opacity:.42; filter:saturate(.7);}
+    .cell.next{box-shadow: var(--nextGlow); border-color: rgba(103,232,249,.65);}
+    .cell.milestone:not(.done){box-shadow: var(--milestoneGlow);}
+
+    .num{
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: -2px;
+    }
+
+    .legend{
+      display:flex;
+      flex-wrap:wrap;
+      gap: 8px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .legend .dot{
+      width:10px;
+      height:10px;
+      border-radius:999px;
+      display:inline-block;
+      margin-right:6px;
+      border:1px solid rgba(255,255,255,.22);
+    }
+
+    .bottomBar{
+      position: fixed;
+      left:0; right:0;
+      bottom: 0;
+      padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+      background: linear-gradient(180deg, rgba(11,18,32,0), rgba(11,18,32,.92) 30%, rgba(11,18,32,.98));
+      border-top: 1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .bottomInner{
+      max-width: 980px;
+      margin: 0 auto;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    button{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
+      color: var(--text);
+      font-weight: 780;
+      border-radius: 16px;
+      padding: 14px 12px;
+      font-size: 14px;
+      cursor:pointer;
+      box-shadow: 0 10px 25px rgba(0,0,0,.18);
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:active{transform: scale(.985);}
+    button.primary{
+      background: linear-gradient(180deg, rgba(103,232,249,.22), rgba(103,232,249,.10));
+      border-color: rgba(103,232,249,.35);
+    }
+    button.secondary{
+      background: linear-gradient(180deg, rgba(246,200,76,.22), rgba(246,200,76,.10));
+      border-color: rgba(246,200,76,.38);
+    }
+    button.ghost{
+      background: transparent;
+      box-shadow:none;
+      border-color: rgba(255,255,255,.10);
+      padding: 10px 10px;
+      font-size: 13px;
+      border-radius: 14px;
+    }
+    button:disabled{opacity:.55; cursor:not-allowed;}
+
+    details{
+      margin-top: 12px;
+    }
+    summary{
+      cursor:pointer;
+      color: var(--muted);
+      font-size: 13px;
+      user-select:none;
+      list-style:none;
+    }
+    summary::-webkit-details-marker{display:none;}
+    .adv{
+      margin-top: 10px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+    .row{
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    input[type="number"]{
+      width: 100%;
+      max-width: 220px;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.24);
+      color: var(--text);
+      font-size: 14px;
+      outline:none;
+    }
+    .note{
+      color: var(--muted);
+      font-size: 12px;
+      margin:0;
+    }
+
+    @media (min-width: 820px){
+      .grid2{grid-template-columns: 1.25fr .75fr;}
+      .title h1{font-size: 22px;}
+      .sequence{gap: 9px;}
+      button{font-size: 15px;}
+    }
+
+    .icon{
+      width: 34px;
+      height: 34px;
+      flex: 0 0 auto;
+    }
+    .icon.big{
+      width: 46px;
+      height: 46px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <h1>HCR2 Cups Chest Tracker</h1>
+        <p>Tap <b>Next chest</b> after you open one in-game. Or use <b>Next milestone</b> to jump to the next non-common chest (auto-marks the commons in between).</p>
+      </div>
+      <div class="pill" id="pill">
+        <strong id="pillCycle">Cycle 1</strong>
+        <span id="pillPos">• Next: #1</span>
+      </div>
+    </header>
+
+    <div class="grid2">
+      <section class="card">
+        <div class="nextRow">
+          <div id="nextIcon" aria-hidden="true"></div>
+          <div class="nextInfo">
+            <p class="big" id="nextName">—</p>
+            <p class="small" id="nextMeta">—</p>
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="k">Opened total</div>
+            <div class="v" id="openedTotal">0</div>
+            <div class="s" id="openedTotalSub">Across all cycles</div>
+          </div>
+          <div class="stat">
+            <div class="k">In this cycle</div>
+            <div class="v" id="openedCycle">0 / 111</div>
+            <div class="s" id="openedCycleSub">0% complete</div>
+          </div>
+        </div>
+
+        <div class="progressWrap">
+          <div class="bar" aria-label="Cycle progress">
+            <div id="barFill"></div>
+          </div>
+          <div class="barLabel">
+            <span id="toMilestone">Next milestone: —</span>
+            <span id="cycleRange">1–111</span>
+          </div>
+        </div>
+
+        <div class="seqHeader" style="margin-top:14px;">
+          <h2>Upcoming milestone chests</h2>
+          <div class="hint">Non-common (gold / silver / purple / champion)</div>
+        </div>
+        <div class="milestones" id="milestones"></div>
+
+        <details>
+          <summary>Advanced: undo / reset / set progress</summary>
+          <div class="adv">
+            <div class="row">
+              <button class="ghost" id="btnUndo">Undo</button>
+              <button class="ghost" id="btnReset">Reset</button>
+            </div>
+            <div class="row">
+              <label style="flex:1; min-width:220px;">
+                <div class="note" style="margin-bottom:6px;">Set <b>opened total</b> (0 = start at Champion chest)</div>
+                <input type="number" id="setOpened" min="0" step="1" inputmode="numeric" />
+              </label>
+              <button class="ghost" id="btnSetOpened">Set</button>
+            </div>
+            <p class="note">Tip: You can also tap a chest in the grid below to set the next chest to that position (confirmation required).</p>
+          </div>
+        </details>
+      </section>
+
+      <section class="card">
+        <div class="seqHeader" style="margin-top:0;">
+          <h2>Full sequence (111)</h2>
+          <div class="hint">Next chest is highlighted</div>
+        </div>
+        <div class="sequence" id="sequenceGrid" aria-label="Chest sequence grid"></div>
+
+        <div class="legend" aria-label="Legend">
+          <span><span class="dot" style="background:var(--champion)"></span>Champion</span>
+          <span><span class="dot" style="background:var(--rare)"></span>Rare (gold)</span>
+          <span><span class="dot" style="background:var(--uncommon)"></span>Uncommon (silver)</span>
+          <span><span class="dot" style="background:var(--epic)"></span>Epic (purple)</span>
+          <span><span class="dot" style="background:var(--common)"></span>Common (brown)</span>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="bottomBar" role="toolbar" aria-label="Actions">
+    <div class="bottomInner">
+      <button class="primary" id="btnNext">Next chest</button>
+      <button class="secondary" id="btnMilestone">Next milestone</button>
+    </div>
+  </div>
+
+  <script>
+    // HCR2 cups chest sequence (111). Milestone chest = anything not "common".
+    const SEQUENCE = [
+      "champion","common","common","common","rare","common","common","common",
+      "rare","common","common","uncommon","common","common","common","common",
+      "common","rare","common","common","common","epic","common","common",
+      "rare","common","common","common","common","common","rare","common",
+      "common","common","common","rare","common","common","uncommon","common",
+      "common","common","common","common","rare","common","common","common",
+      "common","common","rare","common","common","common","common","rare",
+      "common","common","common","common","common","rare","common","common",
+      "common","common","common","epic","common","common","common","common",
+      "rare","common","common","common","rare","common","common","common",
+      "common","common","common","rare","common","common","common","rare",
+      "common","common","uncommon","common","rare","common","common","rare",
+      "common","common","common","common","common","rare","common","common",
+      "common","common","common","rare","common","common","common"
+    ];
+
+    const CHESTS = {
+      champion: { name: "Champion chest", colorVar: "--champion", milestone: true },
+      rare:     { name: "Rare chest",     colorVar: "--rare",     milestone: true },
+      uncommon: { name: "Uncommon chest", colorVar: "--uncommon", milestone: true },
+      epic:     { name: "Epic chest",     colorVar: "--epic",     milestone: true },
+      common:   { name: "Common chest",   colorVar: "--common",   milestone: false },
+    };
+
+    const STORAGE_KEY = "hcr2cups.v1.state";
+
+    /** @type {{openedCount:number, history:number[]}} */
+    let state = { openedCount: 0, history: [] };
+
+    function clampNonNegInt(n){
+      const x = Number.isFinite(n) ? Math.floor(n) : 0;
+      return Math.max(0, x);
+    }
+
+    function loadState(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return;
+        const parsed = JSON.parse(raw);
+        if(typeof parsed !== "object" || parsed === null) return;
+        state.openedCount = clampNonNegInt(parsed.openedCount);
+        state.history = Array.isArray(parsed.history) ? parsed.history.map(clampNonNegInt).slice(-60) : [];
+      }catch(_e){
+        // ignore corrupt storage
+      }
+    }
+    function saveState(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+    function pushHistory(){
+      state.history.push(state.openedCount);
+      if(state.history.length > 60) state.history = state.history.slice(-60);
+    }
+
+    function chestSVG(type, sizeClass=""){
+      const meta = CHESTS[type];
+      const color = getComputedStyle(document.documentElement).getPropertyValue(meta.colorVar).trim() || "#fff";
+      const accent = "rgba(0,0,0,.25)";
+      const laurel = (type === "champion" || type === "epic");
+
+      return `
+      <svg class="icon ${sizeClass}" viewBox="0 0 64 64" role="img" aria-label="${meta.name}">
+        ${laurel ? `
+          <path d="M9 26c-5 3-6 10-2 15 3 4 8 6 12 4" fill="none" stroke="${type === "epic" ? "#f0e68c" : "#d9f99d"}" stroke-width="3" stroke-linecap="round"/>
+          <path d="M55 26c5 3 6 10 2 15-3 4-8 6-12 4" fill="none" stroke="${type === "epic" ? "#f0e68c" : "#d9f99d"}" stroke-width="3" stroke-linecap="round"/>
+        ` : ``}
+        <path d="M14 24c0-8 7-14 18-14s18 6 18 14v4H14v-4z" fill="${shade(color, 0.12)}" stroke="rgba(255,255,255,.25)" stroke-width="1"/>
+        <path d="M12 28h40c3 0 6 3 6 6v16c0 4-3 7-7 7H13c-4 0-7-3-7-7V34c0-3 3-6 6-6z" fill="${color}" stroke="rgba(255,255,255,.25)" stroke-width="1"/>
+        <path d="M12 38h52v5H12z" fill="${shade(color, -0.10)}" opacity="0.9"/>
+        <rect x="29" y="33" width="6" height="14" rx="2.5" fill="${shade(color, -0.25)}"/>
+        <rect x="27.5" y="35" width="9" height="8" rx="2" fill="${shade(color, -0.33)}"/>
+        <circle cx="32" cy="39" r="1.3" fill="rgba(255,255,255,.65)"/>
+        <path d="M16 30c6-5 26-5 32 0" fill="none" stroke="${accent}" stroke-width="2" opacity=".55" stroke-linecap="round"/>
+      </svg>`;
+    }
+
+    function shade(color, amount){
+      if(!color || color[0] !== "#") return color;
+      const hex = color.replace("#","");
+      if(hex.length !== 6) return color;
+      const num = parseInt(hex, 16);
+      let r = (num >> 16) & 255;
+      let g = (num >> 8) & 255;
+      let b = num & 255;
+      const adj = (v) => Math.max(0, Math.min(255, Math.round(v + 255*amount)));
+      r = adj(r); g = adj(g); b = adj(b);
+      return "#" + [r,g,b].map(x => x.toString(16).padStart(2,"0")).join("");
+    }
+
+    function seqLen(){ return SEQUENCE.length; }
+
+    function currentCycle(){
+      return Math.floor(state.openedCount / seqLen()) + 1;
+    }
+    function indexInCycle(){
+      return state.openedCount % seqLen();
+    }
+
+    function nextChestType(){
+      return SEQUENCE[indexInCycle()];
+    }
+
+    function nextMilestoneDelta(){
+      const start = indexInCycle();
+      for(let off=0; off<seqLen(); off++){
+        const t = SEQUENCE[(start + off) % seqLen()];
+        if(CHESTS[t].milestone) return off;
+      }
+      return 0;
+    }
+
+    function advanceBy(n){
+      const delta = clampNonNegInt(n);
+      if(delta === 0) return;
+      pushHistory();
+      state.openedCount = clampNonNegInt(state.openedCount + delta);
+      saveState();
+      render();
+    }
+
+    function markNextChest(){
+      advanceBy(1);
+    }
+
+    function markNextMilestone(){
+      const off = nextMilestoneDelta();
+      advanceBy(off + 1); // include the milestone chest
+    }
+
+    function undo(){
+      if(!state.history.length) return;
+      state.openedCount = clampNonNegInt(state.history.pop());
+      saveState();
+      render();
+    }
+
+    function resetAll(){
+      const ok = confirm("Reset progress back to the start (Champion chest)?");
+      if(!ok) return;
+      state.openedCount = 0;
+      state.history = [];
+      saveState();
+      render();
+    }
+
+    function setOpenedCountManually(){
+      const el = document.getElementById("setOpened");
+      const val = clampNonNegInt(Number(el.value));
+      pushHistory();
+      state.openedCount = val;
+      saveState();
+      render();
+    }
+
+    function fmt(n){ return new Intl.NumberFormat().format(n); }
+    function ordinalInCycle(idx0){ return idx0 + 1; }
+
+    function describeAbsoluteChest(absIndex){
+      const len = seqLen();
+      const cycle = Math.floor(absIndex / len) + 1;
+      const idx = absIndex % len;
+      return { cycle, idx, type: SEQUENCE[idx] };
+    }
+
+    function buildMilestones(){
+      const out = [];
+      const startAbs = state.openedCount;
+      let found = 0;
+      for(let step=0; step<seqLen()*2 && found<5; step++){
+        const abs = startAbs + step;
+        const d = describeAbsoluteChest(abs);
+        if(CHESTS[d.type].milestone){
+          out.push({ step, abs, ...d });
+          found++;
+        }
+      }
+      return out;
+    }
+
+    function render(){
+      const len = seqLen();
+      const cycle = currentCycle();
+      const idx = indexInCycle();
+      const type = nextChestType();
+      const meta = CHESTS[type];
+
+      document.getElementById("pillCycle").textContent = "Cycle " + cycle;
+      document.getElementById("pillPos").textContent = "• Next: #" + ordinalInCycle(idx);
+
+      document.getElementById("nextIcon").innerHTML = chestSVG(type, "big");
+      document.getElementById("nextName").textContent = meta.name;
+      document.getElementById("nextMeta").textContent =
+        `Next chest is #${ordinalInCycle(idx)} in the 111-step sequence (Cycle ${cycle}).`;
+
+      document.getElementById("openedTotal").textContent = fmt(state.openedCount);
+      document.getElementById("openedCycle").textContent = `${idx} / ${len}`;
+      const pct = Math.round((idx / len) * 100);
+      document.getElementById("openedCycleSub").textContent = `${pct}% complete`;
+
+      document.getElementById("barFill").style.width = (idx / len * 100).toFixed(2) + "%";
+      document.getElementById("cycleRange").textContent = `1–${len}`;
+
+      const off = nextMilestoneDelta();
+      const milAbs = state.openedCount + off;
+      const mil = describeAbsoluteChest(milAbs);
+      const milName = CHESTS[mil.type].name;
+      document.getElementById("toMilestone").textContent =
+        off === 0 ? `Next milestone: now (${milName})` : `Next milestone: in ${off} chest${off===1?"":"es"} (${milName})`;
+
+      const ms = buildMilestones();
+      const msWrap = document.getElementById("milestones");
+      msWrap.innerHTML = "";
+      ms.forEach(m => {
+        const div = document.createElement("div");
+        div.className = "milestoneItem";
+        div.innerHTML = `
+          <div aria-hidden="true">${chestSVG(m.type)}</div>
+          <div class="txt">
+            <p class="t">${CHESTS[m.type].name}</p>
+            <p class="d">In ${m.step} chest${m.step===1?"":"es"} • Cycle ${m.cycle} • Position #${ordinalInCycle(m.idx)}</p>
+          </div>
+        `;
+        msWrap.appendChild(div);
+      });
+
+      const grid = document.getElementById("sequenceGrid");
+      grid.innerHTML = "";
+      const frag = document.createDocumentFragment();
+
+      for(let i=0; i<len; i++){
+        const t = SEQUENCE[i];
+        const cell = document.createElement("div");
+        cell.className = "cell " + t
+          + (i < idx ? " done" : "")
+          + (i === idx ? " next" : "")
+          + (CHESTS[t].milestone ? " milestone" : "");
+        cell.setAttribute("role", "button");
+        cell.setAttribute("tabindex", "0");
+        cell.setAttribute("aria-label", `${CHESTS[t].name}, position ${i+1} of ${len}`);
+        cell.innerHTML = `
+          ${chestSVG(t)}
+          <div class="num">#${i+1}</div>
+        `;
+
+        cell.addEventListener("click", () => {
+          const targetAbs = (state.openedCount - idx) + i; // same cycle
+          const ok = confirm(`Set NEXT chest to position #${i+1} (${CHESTS[t].name}) in the current cycle?`);
+          if(!ok) return;
+          pushHistory();
+          state.openedCount = clampNonNegInt(targetAbs);
+          saveState();
+          render();
+        });
+        cell.addEventListener("keydown", (e) => {
+          if(e.key === "Enter" || e.key === " "){
+            e.preventDefault();
+            cell.click();
+          }
+        });
+
+        frag.appendChild(cell);
+      }
+      grid.appendChild(frag);
+
+      document.getElementById("btnUndo").disabled = state.history.length === 0;
+      document.getElementById("setOpened").value = String(state.openedCount);
+    }
+
+    document.getElementById("btnNext").addEventListener("click", markNextChest);
+    document.getElementById("btnMilestone").addEventListener("click", markNextMilestone);
+    document.getElementById("btnUndo").addEventListener("click", undo);
+    document.getElementById("btnReset").addEventListener("click", resetAll);
+    document.getElementById("btnSetOpened").addEventListener("click", setOpenedCountManually);
+
+    loadState();
+    render();
+  </script>
+</body>
+</html>
