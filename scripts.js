@@ -29,12 +29,44 @@ const STORAGE_KEY = "hcr2cups.v1.state";
 /** @type {{openedCount:number, history:number[]}} */
 let state = { openedCount: 0, history: [] };
 
+function clampNonNegInt(n){
+  const x = Number.isFinite(n) ? Math.floor(n) : 0;
+  return Math.max(0, x);
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const parsed = JSON.parse(raw);
+    if(typeof parsed !== "object" || parsed === null) return;
+    state.openedCount = clampNonNegInt(parsed.openedCount);
+    state.history = Array.isArray(parsed.history) ? parsed.history.map(clampNonNegInt).slice(-60) : [];
+  }catch(_e){}
+}
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+function pushHistory(){
+  state.history.push(state.openedCount);
+  if(state.history.length > 60) state.history = state.history.slice(-60);
+}
+
+/**
+ * Custom confirm modal.
+ * Requires modal HTML in index.html. If missing, falls back to window.confirm().
+ */
 function confirmModal(message, opts = {}){
   const modal = document.getElementById("confirmModal");
   const desc = document.getElementById("confirmDesc");
   const title = document.getElementById("confirmTitle");
   const btnOk = document.getElementById("confirmOk");
   const btnCancel = document.getElementById("confirmCancel");
+
+  // Fallback if modal isn't present
+  if(!modal || !desc || !title || !btnOk || !btnCancel){
+    return Promise.resolve(confirm(message));
+  }
 
   title.textContent = opts.title || "Confirm";
   desc.textContent = message;
@@ -72,32 +104,8 @@ function confirmModal(message, opts = {}){
     modal.addEventListener("click", onBackdrop);
     document.addEventListener("keydown", onKey);
 
-    // Focus OK by default so Enter works nicely
     btnOk.focus();
   });
-}
-
-function clampNonNegInt(n){
-  const x = Number.isFinite(n) ? Math.floor(n) : 0;
-  return Math.max(0, x);
-}
-
-function loadState(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return;
-    const parsed = JSON.parse(raw);
-    if(typeof parsed !== "object" || parsed === null) return;
-    state.openedCount = clampNonNegInt(parsed.openedCount);
-    state.history = Array.isArray(parsed.history) ? parsed.history.map(clampNonNegInt).slice(-60) : [];
-  }catch(_e){}
-}
-function saveState(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
-function pushHistory(){
-  state.history.push(state.openedCount);
-  if(state.history.length > 60) state.history = state.history.slice(-60);
 }
 
 function chestSVG(type, sizeClass=""){
@@ -179,8 +187,11 @@ function undo(){
   render();
 }
 
-function resetAll(){
-  const ok = confirm("Reset progress back to the start (Champion chest)?");
+async function resetAll(){
+  const ok = await confirmModal(
+    "Reset progress back to the start (Champion chest)?",
+    { title: "Reset progress" }
+  );
   if(!ok) return;
   state.openedCount = 0;
   state.history = [];
@@ -287,15 +298,19 @@ function render(){
       <div class="num">#${i+1}</div>
     `;
 
-    cell.addEventListener("click", () => {
+    cell.addEventListener("click", async () => {
       const targetAbs = (state.openedCount - idx) + i; // same cycle
-      const ok = confirm(`Set NEXT chest to position #${i+1} (${CHESTS[t].name}) in the current cycle?`);
+      const ok = await confirmModal(
+        `Set NEXT chest to position #${i+1} (${CHESTS[t].name}) in the current cycle?`,
+        { title: "Set next chest" }
+      );
       if(!ok) return;
       pushHistory();
       state.openedCount = clampNonNegInt(targetAbs);
       saveState();
       render();
     });
+
     cell.addEventListener("keydown", (e) => {
       if(e.key === "Enter" || e.key === " "){
         e.preventDefault();
