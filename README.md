@@ -1,4 +1,4 @@
-[URL]https://penandalokasi.github.io/hcr2cups[/URL]
+https://penandalokasi.github.io/hcr2cups
 
 # HCR2 Cups Chest Tracker, made by a Clanker™
 
