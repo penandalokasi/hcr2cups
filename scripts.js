@@ -122,7 +122,10 @@ function chestSVG(type, sizeClass=""){
     ` : ``}
     <path d="M14 24c0-8 7-14 18-14s18 6 18 14v4H14v-4z" fill="${shade(color, 0.12)}" stroke="rgba(255,255,255,.25)" stroke-width="1"/>
     <path d="M12 28h40c3 0 6 3 6 6v16c0 4-3 7-7 7H13c-4 0-7-3-7-7V34c0-3 3-6 6-6z" fill="${color}" stroke="rgba(255,255,255,.25)" stroke-width="1"/>
-    <path d="M12 38h52v5H12z" fill="${shade(color, -0.10)}" opacity="0.9"/>
+
+    <!-- FIX: center the horizontal band (was extending to x=64, making it look shifted right) -->
+    <path d="M6 38H58v5H6z" fill="${shade(color, -0.10)}" opacity="0.9"/>
+
     <rect x="29" y="33" width="6" height="14" rx="2.5" fill="${shade(color, -0.25)}"/>
     <rect x="27.5" y="35" width="9" height="8" rx="2" fill="${shade(color, -0.33)}"/>
     <circle cx="32" cy="39" r="1.3" fill="rgba(255,255,255,.65)"/>
