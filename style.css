@@ -370,3 +370,51 @@ input[type="number"]{
   width: 46px;
   height: 46px;
 }
+
+/* Custom confirm modal */
+.modal{
+  position: fixed;
+  inset: 0;
+  display: none;
+  z-index: 2000;
+}
+.modal.is-open{ display:block; }
+
+.modal__backdrop{
+  position:absolute;
+  inset:0;
+  background: rgba(0,0,0,.55);
+}
+
+.modal__panel{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  width: min(520px, calc(100vw - 32px));
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.55);
+  padding: 14px;
+}
+
+.modal__title{
+  font-size: 14px;
+  font-weight: 850;
+  letter-spacing: .2px;
+  margin-bottom: 6px;
+}
+
+.modal__desc{
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+  margin-bottom: 12px;
+}
+
+.modal__actions{
+  display:flex;
+  justify-content:flex-end;
+  gap: 10px;
+}
