@@ -1,3 +1,5 @@
+penandalokasi.github.io/hcr2cups
+
 # HCR2 Cups Chest Tracker, made by a Clanker™
 
 A tiny single-page tracker for the **Hill Climb Racing 2 (Cups) chest cycle**.
