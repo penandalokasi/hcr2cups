@@ -365,10 +365,6 @@ input[type="number"]{
   width: 34px;
   height: 34px;
   flex: 0 0 auto;
-
-  /* small alignment improvement for SVG rendering */
-  display:block;
-  margin: 0 auto;
 }
 .icon.big{
   width: 46px;
