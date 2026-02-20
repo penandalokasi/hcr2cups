@@ -28,6 +28,7 @@
 
     *{box-sizing:border-box;}
     html,body{height:100%;}
+    html{ background: var(--bg); } /* prevents any white “bleed” on overscroll */
     body{
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
@@ -259,15 +260,25 @@
       border:1px solid rgba(255,255,255,.22);
     }
 
+    /* ✅ FIX: remove backdrop-filter + transparent gradient that causes the “split”
+       and replace with a solid bar + a small fade above it. */
     .bottomBar{
       position: fixed;
       left:0; right:0;
       bottom: 0;
       padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-      background: linear-gradient(180deg, rgba(11,18,32,0), rgba(11,18,32,.92) 30%, rgba(11,18,32,.98));
+      background: rgba(11,18,32,.88);
       border-top: 1px solid rgba(255,255,255,.10);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      z-index: 1000;
+    }
+    .bottomBar::before{
+      content:"";
+      position:absolute;
+      left:0; right:0;
+      top:-88px;
+      height:88px;
+      background: linear-gradient(180deg, rgba(11,18,32,0), rgba(11,18,32,.88));
+      pointer-events:none;
     }
     .bottomInner{
       max-width: 980px;
@@ -275,6 +286,8 @@
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
+      position: relative;
+      z-index: 1; /* ensure above the fade layer */
     }
 
     button{
@@ -509,9 +522,7 @@
         if(typeof parsed !== "object" || parsed === null) return;
         state.openedCount = clampNonNegInt(parsed.openedCount);
         state.history = Array.isArray(parsed.history) ? parsed.history.map(clampNonNegInt).slice(-60) : [];
-      }catch(_e){
-        // ignore corrupt storage
-      }
+      }catch(_e){}
     }
     function saveState(){
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -587,13 +598,10 @@
       render();
     }
 
-    function markNextChest(){
-      advanceBy(1);
-    }
-
+    function markNextChest(){ advanceBy(1); }
     function markNextMilestone(){
       const off = nextMilestoneDelta();
-      advanceBy(off + 1); // include the milestone chest
+      advanceBy(off + 1);
     }
 
     function undo(){
