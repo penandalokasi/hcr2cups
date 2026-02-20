@@ -29,6 +29,54 @@ const STORAGE_KEY = "hcr2cups.v1.state";
 /** @type {{openedCount:number, history:number[]}} */
 let state = { openedCount: 0, history: [] };
 
+function confirmModal(message, opts = {}){
+  const modal = document.getElementById("confirmModal");
+  const desc = document.getElementById("confirmDesc");
+  const title = document.getElementById("confirmTitle");
+  const btnOk = document.getElementById("confirmOk");
+  const btnCancel = document.getElementById("confirmCancel");
+
+  title.textContent = opts.title || "Confirm";
+  desc.textContent = message;
+
+  return new Promise((resolve) => {
+    const close = (result) => {
+      modal.classList.remove("is-open");
+      modal.setAttribute("aria-hidden", "true");
+      cleanup();
+      resolve(result);
+    };
+
+    const onOk = () => close(true);
+    const onCancel = () => close(false);
+    const onBackdrop = (e) => {
+      if(e.target && e.target.hasAttribute("data-close")) close(false);
+    };
+    const onKey = (e) => {
+      if(e.key === "Escape") close(false);
+      if(e.key === "Enter") close(true);
+    };
+
+    function cleanup(){
+      btnOk.removeEventListener("click", onOk);
+      btnCancel.removeEventListener("click", onCancel);
+      modal.removeEventListener("click", onBackdrop);
+      document.removeEventListener("keydown", onKey);
+    }
+
+    modal.classList.add("is-open");
+    modal.setAttribute("aria-hidden", "false");
+
+    btnOk.addEventListener("click", onOk);
+    btnCancel.addEventListener("click", onCancel);
+    modal.addEventListener("click", onBackdrop);
+    document.addEventListener("keydown", onKey);
+
+    // Focus OK by default so Enter works nicely
+    btnOk.focus();
+  });
+}
+
 function clampNonNegInt(n){
   const x = Number.isFinite(n) ? Math.floor(n) : 0;
   return Math.max(0, x);
