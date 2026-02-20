@@ -361,17 +361,14 @@ input[type="number"]{
   button{font-size: 15px;}
 }
 
-/* ✅ FIX: make SVG render on clean pixel ratios so lines look centered/crisp */
 .icon{
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   flex: 0 0 auto;
-  display:block;           /* remove inline baseline quirks */
-  margin: 0 auto;
 }
 .icon.big{
-  width: 48px;
-  height: 48px;
+  width: 46px;
+  height: 46px;
 }
 
 /* Custom confirm modal */
