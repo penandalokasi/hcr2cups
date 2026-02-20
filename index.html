@@ -105,5 +105,18 @@
   </div>
 
   <script src="./scripts.js"></script>
+    <!-- Custom confirm modal -->
+  <div class="modal" id="confirmModal" aria-hidden="true">
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmDesc">
+      <div class="modal__title" id="confirmTitle">Confirm</div>
+      <div class="modal__desc" id="confirmDesc">—</div>
+
+      <div class="modal__actions">
+        <button class="ghost" id="confirmCancel">Cancel</button>
+        <button class="primary" id="confirmOk">OK</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
