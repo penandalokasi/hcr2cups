@@ -361,14 +361,17 @@ input[type="number"]{
   button{font-size: 15px;}
 }
 
+/* ✅ FIX: make SVG render on clean pixel ratios so lines look centered/crisp */
 .icon{
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   flex: 0 0 auto;
+  display:block;           /* remove inline baseline quirks */
+  margin: 0 auto;
 }
 .icon.big{
-  width: 46px;
-  height: 46px;
+  width: 48px;
+  height: 48px;
 }
 
 /* Custom confirm modal */
@@ -383,7 +386,7 @@ input[type="number"]{
 .modal__backdrop{
   position:absolute;
   inset:0;
-  background: rgba(0,0,0,.55);
+  background: rgba(0,0,0,.62);
 }
 
 .modal__panel{
@@ -392,11 +395,12 @@ input[type="number"]{
   top: 50%;
   transform: translate(-50%,-50%);
   width: min(520px, calc(100vw - 32px));
-  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
-  border: 1px solid rgba(255,255,255,.12);
+  background: linear-gradient(180deg, rgba(18,28,49,.98), rgba(11,18,32,.96)); /* less transparent */
+  border: 1px solid rgba(255,255,255,.16);
   border-radius: 18px;
-  box-shadow: 0 20px 60px rgba(0,0,0,.55);
+  box-shadow: 0 22px 70px rgba(0,0,0,.65);
   padding: 14px;
+  color: var(--text);
 }
 
 .modal__title{
